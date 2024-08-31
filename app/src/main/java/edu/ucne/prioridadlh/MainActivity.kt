@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -93,7 +95,6 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
                     ) {
                         OutlinedTextField(
                             label = { Text(text = "Descripción") },
@@ -111,6 +112,45 @@ class MainActivity : ComponentActivity() {
 //                    Error.let {
 //                        Text(text = it, color = Color.Red)
 //                    }
+                        Row(modifier = Modifier
+                            .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ){
+                            OutlinedButton(
+                                onClick = { }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Boton nuevo"
+                                )
+                                Text(text = "Nuevo")
+                            }
+
+                            val scope = rememberCoroutineScope()
+                            OutlinedButton(
+                                onClick = {
+                                    if(Descripcion.isBlank())
+                                        Error = "Coloque el Nombre"
+
+                                    scope.launch{
+                                        savePrioridad(
+                                            PrioridadEntity(
+                                                Descripcion = Descripcion,
+                                                DiasCompromiso = DiasCompromiso
+                                            )
+                                        )
+                                        Descripcion = ""
+                                        DiasCompromiso = ""
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Boton Guardar"
+                                )
+                                Text(text = "Guardar")
+                            }
+                        }
 
                     }
                 }

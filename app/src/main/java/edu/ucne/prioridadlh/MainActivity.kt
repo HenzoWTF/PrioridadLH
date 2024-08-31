@@ -163,6 +163,7 @@ class MainActivity : ComponentActivity() {
                         lifecycleOwner = lifecycleOwner,
                         minActiveState = Lifecycle.State.STARTED
                     )
+                PrioridadListSc(prioridadList)
             }
         }
     }

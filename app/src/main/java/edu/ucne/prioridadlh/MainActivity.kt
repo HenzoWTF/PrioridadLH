@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.room.Room
 import edu.ucne.prioridadlh.data.local.database.PrioridadDb
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
+import edu.ucne.prioridadlt.data.local.entities.PrioridadEntity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -71,55 +72,63 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun PrioridadScreen(){
-    var Descripcion by remember { mutableStateOf("") }
-    var DiasCompromiso by remember { mutableStateOf("") }
-    var Error: String? by remember { mutableStateOf(null) }
 
-    Scaffold{ innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(8.dp)
-        ) {
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth()
+    @Composable
+    fun PrioridadScreen(){
+        var Descripcion by remember { mutableStateOf("") }
+        var DiasCompromiso by remember { mutableStateOf("") }
+        var Error: String? by remember { mutableStateOf(null) }
+
+        Scaffold{ innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(8.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    OutlinedTextField(
-                        label = { Text(text = "Descripción") },
-                        value = Descripcion,
-                        onValueChange = { Descripcion = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        label = { Text(text = "Días Compromiso") },
-                        value = DiasCompromiso,
-                        onValueChange = { DiasCompromiso = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.padding(2.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            label = { Text(text = "Descripción") },
+                            value = Descripcion,
+                            onValueChange = { Descripcion = it },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            label = { Text(text = "Días Compromiso") },
+                            value = DiasCompromiso,
+                            onValueChange = { DiasCompromiso = it },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
 //                    Error.let {
 //                        Text(text = it, color = Color.Red)
 //                    }
+
+                    }
                 }
             }
         }
     }
-}
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun GreetingPreview() {
-    PrioridadLHTheme {
-        PrioridadScreen()
+    private suspend fun savePrioridad(prioridad: PrioridadEntity){
+        prioridadDb.prioridadDao().save(prioridad)
+    }
+
+
+    @Preview(showBackground = true, showSystemUi = true)
+    @Composable
+    fun GreetingPreview() {
+        PrioridadLHTheme {
+            PrioridadScreen()
+        }
     }
 }
+

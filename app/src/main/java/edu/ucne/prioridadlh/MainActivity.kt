@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -154,8 +155,50 @@ class MainActivity : ComponentActivity() {
 
                     }
                 }
+
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                val prioridadList by prioridadDb.prioridadDao().getAll()
+                    .collectAsStateWithLifecycle(
+                        initialValue = emptyList(),
+                        lifecycleOwner = lifecycleOwner,
+                        minActiveState = Lifecycle.State.STARTED
+                    )
             }
         }
+    }
+
+    @Composable
+    fun PrioridadListSc(priodadList: List<PrioridadEntity>){
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.height(32.dp))
+            Text("Listado")
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(priodadList){
+                    PrioridadRow(it)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun PrioridadRow(it: PrioridadEntity){
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Text(modifier = Modifier.weight(1f), text = it.PrioridadId.toString())
+            Text(
+                modifier = Modifier.weight(1f),
+                text = it.Descripcion,
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Text(modifier = Modifier.weight(1f), text = it.DiasCompromiso)
+        }
+        HorizontalDivider()
     }
 
     private suspend fun savePrioridad(prioridad: PrioridadEntity){

@@ -195,7 +195,6 @@ class MainActivity : ComponentActivity() {
             Text(
                 modifier = Modifier.weight(1f),
                 text = it.Descripcion,
-                style = MaterialTheme.typography.headlineLarge
             )
             Text(modifier = Modifier.weight(1f), text = it.DiasCompromiso)
         }

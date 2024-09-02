@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -78,81 +80,127 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun PrioridadScreen(){
-        var Descripcion by remember { mutableStateOf("") }
-        var DiasCompromiso by remember { mutableStateOf("") }
-        var Error: String? by remember { mutableStateOf(null) }
+    fun PrioridadScreen() {
+        var descripcion by remember { mutableStateOf("") }
+        var diasCompromiso by remember { mutableStateOf("") }
+        var error by remember { mutableStateOf<String?>(null) }
 
-        Scaffold{ innerPadding ->
+        val scope = rememberCoroutineScope()
+
+        Scaffold { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(8.dp)
+                    .padding(16.dp)
+
             ) {
+                Text(
+                    text = "Registro Prioridad",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+
                 ElevatedCard(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(16.dp)
+                            .align(Alignment.CenterHorizontally)
+
                     ) {
                         OutlinedTextField(
-                            label = { Text(text = "Descripción") },
-                            value = Descripcion,
-                            onValueChange = { Descripcion = it },
-                            modifier = Modifier.fillMaxWidth()
+                            label = { Text("Descripción") },
+                            value = descripcion,
+                            onValueChange = { descripcion = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            isError = error != null
                         )
                         OutlinedTextField(
-                            label = { Text(text = "Días Compromiso") },
-                            value = DiasCompromiso,
-                            onValueChange = { DiasCompromiso = it },
-                            modifier = Modifier.fillMaxWidth()
+                            label = { Text("Días Compromiso") },
+                            value = diasCompromiso,
+                            onValueChange = { diasCompromiso = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            isError = error != null
                         )
-                        Spacer(modifier = Modifier.padding(2.dp))
-//                    Error.let {
-//                        Text(text = it, color = Color.Red)
-//                    }
-                        Row(modifier = Modifier
-                            .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ){
-                            OutlinedButton(
-                                onClick = { }
-                            ) {
+                        if (error != null) {
+                            Text(
+                                text = error!!,
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            OutlinedButton(onClick = {  }) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Boton nuevo"
+                                    contentDescription = "Nuevo"
                                 )
+                                Spacer(modifier = Modifier.width(0.4.dp))
                                 Text(text = "Nuevo")
                             }
 
-                            val scope = rememberCoroutineScope()
                             OutlinedButton(
                                 onClick = {
-                                    if(Descripcion.isBlank())
-                                        Error = "Coloque el Nombre"
-
-                                    scope.launch{
-                                        savePrioridad(
-                                            PrioridadEntity(
-                                                Descripcion = Descripcion,
-                                                DiasCompromiso = DiasCompromiso
+                                    if (descripcion.isBlank()) {
+                                        error = "Coloque la Descripción"
+                                    } else {
+                                        scope.launch {
+                                            savePrioridad(
+                                                PrioridadEntity(
+                                                    Descripcion = descripcion,
+                                                    DiasCompromiso = diasCompromiso
+                                                )
                                             )
-                                        )
-                                        Descripcion = ""
-                                        DiasCompromiso = ""
+                                            descripcion = ""
+                                            diasCompromiso = ""
+                                            error = null
+                                        }
                                     }
                                 }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
-                                    contentDescription = "Boton Guardar"
+                                    contentDescription = "Guardar"
                                 )
+                                Spacer(modifier = Modifier.width(0.4.dp))
                                 Text(text = "Guardar")
                             }
-                        }
 
+                        }
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+
+                        ){
+                            OutlinedButton(
+                                onClick = {
+                                    scope.launch {
+                                        deleteAllPrioridades()
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Borrar Todo"
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(text = "Borrar")
+                            }
+                        }
                     }
                 }
 
@@ -169,18 +217,45 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun PrioridadListSc(priodadList: List<PrioridadEntity>){
+    fun PrioridadListSc(prioridadList: List<PrioridadEntity>) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-            Text("Listado")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Listado",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "#",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(0.2f)
+                )
+                Text(
+                    text = "Descripción",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(0.5f)
+                )
+                Text(
+                    text = "Días",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(0.2f)
+                )
+            }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(priodadList){
-                    PrioridadRow(it)
+                items(prioridadList) { item ->
+                    PrioridadRow(item)
                 }
             }
         }
@@ -191,20 +266,25 @@ class MainActivity : ComponentActivity() {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ){
-            Text(modifier = Modifier.weight(1f), text = it.PrioridadId.toString())
+            Text(modifier = Modifier.weight(0.2f), text = it.PrioridadId.toString())
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(0.5f),
                 text = it.Descripcion,
             )
-            Text(modifier = Modifier.weight(1f), text = it.DiasCompromiso)
+            Text(modifier = Modifier.weight(0.2f), text = it.DiasCompromiso)
         }
         HorizontalDivider()
     }
+
+
 
     private suspend fun savePrioridad(prioridad: PrioridadEntity){
         prioridadDb.prioridadDao().save(prioridad)
     }
 
+    private suspend fun deleteAllPrioridades() {
+        prioridadDb.prioridadDao().deleteAll()
+    }
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable

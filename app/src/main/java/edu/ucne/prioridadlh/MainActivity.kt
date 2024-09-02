@@ -186,20 +186,20 @@ class MainActivity : ComponentActivity() {
                                 .align(Alignment.CenterHorizontally)
 
                         ){
-                            OutlinedButton(
-                                onClick = {
-                                    scope.launch {
-                                        deleteAllPrioridades()
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Borrar Todo"
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(text = "Borrar")
-                            }
+//                            OutlinedButton(
+//                                onClick = {
+//                                    scope.launch {
+//                                        deleteAllPrioridades()
+//                                    }
+//                                }
+//                            ) {
+//                                Icon(
+//                                    imageVector = Icons.Default.Delete,
+//                                    contentDescription = "Borrar Todo"
+//                                )
+//                                Spacer(modifier = Modifier.width(4.dp))
+//                                Text(text = "Borrar")
+//                            }
                         }
                     }
                 }
@@ -282,9 +282,9 @@ class MainActivity : ComponentActivity() {
         prioridadDb.prioridadDao().save(prioridad)
     }
 
-    private suspend fun deleteAllPrioridades() {
-        prioridadDb.prioridadDao().deleteAll()
-    }
+//    private suspend fun deleteAllPrioridades() {
+//        prioridadDb.prioridadDao().deleteAll()
+//    }
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable

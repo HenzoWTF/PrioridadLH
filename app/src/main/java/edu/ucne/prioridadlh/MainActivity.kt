@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -126,10 +128,17 @@ class MainActivity : ComponentActivity() {
                         OutlinedTextField(
                             label = { Text("Días Compromiso") },
                             value = diasCompromiso,
-                            onValueChange = { diasCompromiso = it },
+                            onValueChange = {
+                                if (it.all { char -> char.isDigit() }) {
+                                    diasCompromiso = it
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
-                            isError = error != null
+                            isError = error != null,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number
+                            )
                         )
                         if (error != null) {
                             Text(
@@ -155,19 +164,21 @@ class MainActivity : ComponentActivity() {
 
                             OutlinedButton(
                                 onClick = {
-                                    if (descripcion.isBlank()) {
-                                        error = "Coloque la Descripción"
-                                    } else {
-                                        scope.launch {
-                                            savePrioridad(
-                                                PrioridadEntity(
-                                                    Descripcion = descripcion,
-                                                    DiasCompromiso = diasCompromiso
+                                    when {
+                                        descripcion.isBlank() -> error = "Coloque la Descripción"
+                                        diasCompromiso.isBlank() -> error = "Coloque los Días Compromiso"
+                                        else -> {
+                                            scope.launch {
+                                                savePrioridad(
+                                                    PrioridadEntity(
+                                                        Descripcion = descripcion,
+                                                        DiasCompromiso = diasCompromiso
+                                                    )
                                                 )
-                                            )
-                                            descripcion = ""
-                                            diasCompromiso = ""
-                                            error = null
+                                                descripcion = ""
+                                                diasCompromiso = ""
+                                                error = null
+                                            }
                                         }
                                     }
                                 }

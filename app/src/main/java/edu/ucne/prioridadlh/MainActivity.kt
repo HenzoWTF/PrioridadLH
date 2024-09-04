@@ -45,13 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.room.Room
-import edu.ucne.prioridadlh.data.local.database.PrioridadDb
+import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
-import edu.ucne.prioridadlt.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private  lateinit var prioridadDb: PrioridadDb
+    private  lateinit var prioridadDb: PrioridadesDb
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
         prioridadDb = Room.databaseBuilder(
             applicationContext,
-            PrioridadDb::class.java,
+            PrioridadesDb::class.java,
             "Prioridad.db"
         ).fallbackToDestructiveMigration()
             .build()
@@ -170,7 +170,7 @@ class MainActivity : ComponentActivity() {
                                         else -> {
                                             scope.launch {
                                                 savePrioridad(
-                                                    PrioridadEntity(
+                                                    PrioridadesEntity(
                                                         Descripcion = descripcion,
                                                         DiasCompromiso = diasCompromiso
                                                     )
@@ -216,7 +216,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                val prioridadList by prioridadDb.prioridadDao().getAll()
+                val prioridadList by prioridadDb.prioridadesDao().getAll()
                     .collectAsStateWithLifecycle(
                         initialValue = emptyList(),
                         lifecycleOwner = lifecycleOwner,
@@ -228,7 +228,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun PrioridadListSc(prioridadList: List<PrioridadEntity>) {
+    fun PrioridadListSc(prioridadList: List<PrioridadesEntity>) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -273,7 +273,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun PrioridadRow(it: PrioridadEntity){
+    private fun PrioridadRow(it: PrioridadesEntity){
         Row(
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -289,8 +289,8 @@ class MainActivity : ComponentActivity() {
 
 
 
-    private suspend fun savePrioridad(prioridad: PrioridadEntity){
-        prioridadDb.prioridadDao().save(prioridad)
+    private suspend fun savePrioridad(prioridad: PrioridadesEntity){
+        prioridadDb.prioridadesDao().save(prioridad)
     }
 
 //    private suspend fun deleteAllPrioridades() {

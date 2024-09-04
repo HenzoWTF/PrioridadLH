@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
@@ -38,28 +36,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.room.Room
-import edu.ucne.prioridadlh.data.local.database.PrioridadDb
+import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
-import edu.ucne.prioridadlt.data.local.entities.PrioridadEntity
+import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private  lateinit var prioridadDb: PrioridadDb
+    private  lateinit var prioridadesDb: PrioridadesDb
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        prioridadDb = Room.databaseBuilder(
+        prioridadesDb = Room.databaseBuilder(
             applicationContext,
-            PrioridadDb::class.java,
+            PrioridadesDb::class.java,
             "Prioridad.db"
         ).fallbackToDestructiveMigration()
             .build()
@@ -153,7 +150,13 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            OutlinedButton(onClick = {  }) {
+                            OutlinedButton(
+                                onClick = {
+                                    scope.launch {
+                                        nuevasPrioridades()
+                                    }
+                                }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Nuevo"
@@ -167,10 +170,11 @@ class MainActivity : ComponentActivity() {
                                     when {
                                         descripcion.isBlank() -> error = "Coloque la Descripción"
                                         diasCompromiso.isBlank() -> error = "Coloque los Días Compromiso"
+                                        diasCompromiso.toIntOrNull() == 0 -> error = "Los Días Compromiso no pueden ser 0"
                                         else -> {
                                             scope.launch {
                                                 savePrioridad(
-                                                    PrioridadEntity(
+                                                    PrioridadesEntity(
                                                         Descripcion = descripcion,
                                                         DiasCompromiso = diasCompromiso
                                                     )
@@ -190,33 +194,12 @@ class MainActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.width(0.4.dp))
                                 Text(text = "Guardar")
                             }
-
-                        }
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-
-                        ){
-//                            OutlinedButton(
-//                                onClick = {
-//                                    scope.launch {
-//                                        deleteAllPrioridades()
-//                                    }
-//                                }
-//                            ) {
-//                                Icon(
-//                                    imageVector = Icons.Default.Delete,
-//                                    contentDescription = "Borrar Todo"
-//                                )
-//                                Spacer(modifier = Modifier.width(4.dp))
-//                                Text(text = "Borrar")
-//                            }
                         }
                     }
                 }
 
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                val prioridadList by prioridadDb.prioridadDao().getAll()
+                val prioridadList by prioridadesDb.prioridadesDao().getAll()
                     .collectAsStateWithLifecycle(
                         initialValue = emptyList(),
                         lifecycleOwner = lifecycleOwner,
@@ -228,7 +211,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun PrioridadListSc(prioridadList: List<PrioridadEntity>) {
+    fun PrioridadListSc(prioridadList: List<PrioridadesEntity>) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -273,7 +256,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun PrioridadRow(it: PrioridadEntity){
+    private fun PrioridadRow(it: PrioridadesEntity){
         Row(
             verticalAlignment = Alignment.CenterVertically
         ){
@@ -289,13 +272,13 @@ class MainActivity : ComponentActivity() {
 
 
 
-    private suspend fun savePrioridad(prioridad: PrioridadEntity){
-        prioridadDb.prioridadDao().save(prioridad)
+    private suspend fun savePrioridad(prioridad: PrioridadesEntity){
+        prioridadesDb.prioridadesDao().save(prioridad)
     }
 
-//    private suspend fun deleteAllPrioridades() {
-//        prioridadDb.prioridadDao().deleteAll()
-//    }
+    private suspend fun nuevasPrioridades() {
+        prioridadesDb.prioridadesDao().deleteAll()
+    }
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable

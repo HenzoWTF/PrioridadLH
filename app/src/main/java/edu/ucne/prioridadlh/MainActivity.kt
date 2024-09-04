@@ -170,6 +170,7 @@ class MainActivity : ComponentActivity() {
                                     when {
                                         descripcion.isBlank() -> error = "Coloque la Descripción"
                                         diasCompromiso.isBlank() -> error = "Coloque los Días Compromiso"
+                                        diasCompromiso.toIntOrNull() == 0 -> error = "Los Días Compromiso no pueden ser 0"
                                         else -> {
                                             scope.launch {
                                                 savePrioridad(

@@ -68,7 +68,6 @@ package edu.ucne.prioridadlh.presentacion.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -78,10 +77,6 @@ import androidx.navigation.compose.composable
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListSc
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadScreen
-import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun prioridadlhNavHost(
@@ -108,6 +103,7 @@ fun prioridadlhNavHost(
                 onAddPrioridad = {
                     navHostController.navigate(Screen.Prioridad.createRoute(0))
                 },
+                prioridadesDb = prioridadesDb,
                 onEditPrioridad = { id ->
                     navHostController.navigate(Screen.Prioridad.createRoute(id))
                 },

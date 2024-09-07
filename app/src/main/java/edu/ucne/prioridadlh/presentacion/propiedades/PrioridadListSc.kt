@@ -23,16 +23,27 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.room.DatabaseConfiguration
+import androidx.room.InvalidationTracker
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import edu.ucne.prioridadlh.data.local.dao.PrioridadesDao
+import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +52,7 @@ fun PrioridadListSc(
     prioridadList: List<PrioridadesEntity>,
     onAddPrioridad: () -> Unit,
     onEditPrioridad: (Int) -> Unit,
+    prioridadesDb: PrioridadesDb
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -99,6 +111,7 @@ fun PrioridadListSc(
                     PrioridadRow(
                         item,
                         onEdit = onEditPrioridad,
+                        prioridadesDb = prioridadesDb
                     )
                 }
             }
@@ -110,8 +123,11 @@ fun PrioridadListSc(
 private fun PrioridadRow(
     item: PrioridadesEntity,
     onEdit: (Int) -> Unit,
+    prioridadesDb: PrioridadesDb,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier
             .padding(15.dp)
@@ -139,6 +155,11 @@ private fun PrioridadRow(
             DropdownMenuItem(
                 text = { Text("Eliminar") },
                 onClick = {
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                            EliminarPrioridad(item, prioridadesDb)
+                        }
+                    }
                     expanded = false
                 }
             )
@@ -148,19 +169,26 @@ private fun PrioridadRow(
     HorizontalDivider()
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PrioridadLHPreview() {
-    PrioridadLHTheme {
-        val examplePrioridadesList = listOf(
-            PrioridadesEntity(1, "Prioridad Alta", "5"),
-            PrioridadesEntity(2, "Prioridad Media", "10"),
-            PrioridadesEntity(3, "Prioridad Baja", "15")
-        )
-        PrioridadListSc(
-            prioridadList = examplePrioridadesList,
-            onAddPrioridad = { },
-            onEditPrioridad = { },
-        )
-    }
+private suspend fun EliminarPrioridad(prioridad: PrioridadesEntity, prioridadesDb: PrioridadesDb) {
+    prioridadesDb.prioridadesDao().delete(prioridad)
 }
+
+//
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun PrioridadLHPreview() {
+//    PrioridadLHTheme {
+//        val examplePrioridadesList = listOf(
+//            PrioridadesEntity(1, "Prioridad Alta", "5"),
+//            PrioridadesEntity(2, "Prioridad Media", "10"),
+//            PrioridadesEntity(3, "Prioridad Baja", "15")
+//        )
+//        PrioridadListSc(
+//            prioridadList = examplePrioridadesList,
+//            onAddPrioridad = {  },
+//            onEditPrioridad = { },
+//            prioridadesDb = mockPrioridadesDb
+//        )
+//    }
+//}
+

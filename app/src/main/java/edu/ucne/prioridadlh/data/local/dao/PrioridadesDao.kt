@@ -39,6 +39,4 @@ interface PrioridadesDao{
     @Query("SELECT * FROM prioridades WHERE prioridadId = :prioridadId")
     suspend fun getById(prioridadId: Int): PrioridadesEntity?
 
-    @Query("DELETE FROM prioridades WHERE PrioridadId = :id")
-    suspend fun delete(id: Int)
 }

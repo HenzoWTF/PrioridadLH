@@ -16,7 +16,6 @@ import androidx.room.Room
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.presentacion.navigation.prioridadlhNavHost
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
-import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 
 class MainActivity : ComponentActivity() {
     private  lateinit var prioridadesDb: PrioridadesDb

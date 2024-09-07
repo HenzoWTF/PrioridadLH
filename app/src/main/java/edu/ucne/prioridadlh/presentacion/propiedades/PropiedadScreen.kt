@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,13 +44,28 @@ import kotlinx.coroutines.launch
 @Composable
 fun PrioridadScreen(
     goPrioridadesList: () -> Unit,
-    prioridadesDb: PrioridadesDb
+    prioridadesDb: PrioridadesDb,
+    prioridadId: Int
 ) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
+
+    var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(prioridadId) {
+        if (prioridadId != 0) {
+            isLoading = true
+            val prioridad = prioridadesDb.prioridadesDao().getById(prioridadId)
+            prioridad?.let {
+                descripcion = it.Descripcion
+                diasCompromiso = it.DiasCompromiso
+            }
+            isLoading = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -142,6 +158,7 @@ fun PrioridadScreen(
                                     diasCompromiso.toIntOrNull() == 0 -> error = "Los Días Compromiso no pueden ser 0"
                                     else -> {
                                         scope.launch {
+                                            if (prioridadId == 0) {
                                             savePrioridad(
                                                 PrioridadesEntity(
                                                     Descripcion = descripcion,
@@ -149,6 +166,16 @@ fun PrioridadScreen(
                                                 ),
                                                 prioridadesDb
                                             )
+                                        } else {
+                                            updatePrioridad(
+                                                PrioridadesEntity(
+                                                    PrioridadId = prioridadId,
+                                                    Descripcion = descripcion,
+                                                    DiasCompromiso = diasCompromiso
+                                                ),
+                                                prioridadesDb
+                                            )
+                                        }
                                             descripcion = ""
                                             diasCompromiso = ""
                                             error = null
@@ -182,3 +209,6 @@ private suspend fun nuevasPrioridades(prioridadesDb: PrioridadesDb) {
     prioridadesDb.prioridadesDao().deleteAll()
 }
 
+private suspend fun updatePrioridad(prioridad: PrioridadesEntity, prioridadesDb: PrioridadesDb) {
+    prioridadesDb.prioridadesDao().update(prioridad)
+}

@@ -3,6 +3,7 @@ package edu.ucne.prioridadlh.data.local.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,9 @@ interface PrioridadesDao{
     )
     suspend fun find(id: Int): PrioridadesEntity?
 
+    @Update
+    suspend fun update(prioridad: PrioridadesEntity)
+
     @Delete
     suspend fun delete(Prioridad: PrioridadesEntity)
 
@@ -31,4 +35,10 @@ interface PrioridadesDao{
 
     @Query("SELECT * FROM Prioridades")
     fun getAll(): Flow<List<PrioridadesEntity>>
+
+    @Query("SELECT * FROM prioridades WHERE prioridadId = :prioridadId")
+    suspend fun getById(prioridadId: Int): PrioridadesEntity?
+
+    @Query("DELETE FROM prioridades WHERE PrioridadId = :id")
+    suspend fun delete(id: Int)
 }

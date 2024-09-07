@@ -1,6 +1,7 @@
 package edu.ucne.prioridadlh.presentacion.propiedades
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 
 
@@ -99,6 +102,9 @@ fun PrioridadListSc(
 @Composable
 private fun PrioridadRow(it: PrioridadesEntity){
     Row(
+        modifier = Modifier.clickable {
+
+        },
         verticalAlignment = Alignment.CenterVertically
     ){
         Text(modifier = Modifier.weight(0.2f), text = it.PrioridadId.toString())
@@ -111,4 +117,20 @@ private fun PrioridadRow(it: PrioridadesEntity){
     HorizontalDivider()
 }
 
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PrioridadLHPreview() {
+    PrioridadLHTheme {
+        val examplePrioridadesList = listOf(
+            PrioridadesEntity( 1, "Prioridad Alta", "5"),
+            PrioridadesEntity(2,"Prioridad Media","10"),
+            PrioridadesEntity(3,"Prioridad Baja","15")
+        )
+        PrioridadListSc(
+            prioridadList = examplePrioridadesList,
+            goToPrioridad = { },
+            onAddPrioridad = { }
+        )
+    }
+}
 

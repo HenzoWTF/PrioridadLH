@@ -55,7 +55,7 @@ fun PrioridadScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Prioridades")
+                    Text("Prioridades")
                 }
             )
         },
@@ -170,6 +170,8 @@ fun PrioridadScreen(
             }
         }
     }
+
+
 }
 
 private suspend fun savePrioridad(prioridad: PrioridadesEntity, prioridadesDb: PrioridadesDb) {
@@ -179,3 +181,4 @@ private suspend fun savePrioridad(prioridad: PrioridadesEntity, prioridadesDb: P
 private suspend fun nuevasPrioridades(prioridadesDb: PrioridadesDb) {
     prioridadesDb.prioridadesDao().deleteAll()
 }
+

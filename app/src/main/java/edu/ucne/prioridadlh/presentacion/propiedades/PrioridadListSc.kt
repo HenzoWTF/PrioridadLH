@@ -123,7 +123,7 @@ private fun PrioridadRow(
     Row(
         modifier = Modifier
             .padding(15.dp)
-            .clickable { expanded = true },
+            .clickable { item.PrioridadId?.let { onEdit(it) } },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(modifier = Modifier.weight(0.2f), text = item.PrioridadId.toString())
@@ -133,29 +133,7 @@ private fun PrioridadRow(
         )
         Text(modifier = Modifier.weight(0.2f), text = item.DiasCompromiso)
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Editar") },
-                onClick = {
-                    item.PrioridadId?.let { onEdit(it) }
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Eliminar") },
-                onClick = {
-                    scope.launch {
-                        withContext(Dispatchers.IO) {
-                            EliminarPrioridad(item, prioridadesDb)
-                        }
-                    }
-                    expanded = false
-                }
-            )
-        }
+
     }
 
     HorizontalDivider()

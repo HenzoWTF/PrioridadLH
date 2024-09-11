@@ -12,6 +12,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,13 +120,13 @@ private fun PrioridadRow(
     onEdit: (Int) -> Unit,
     prioridadesDb: PrioridadesDb,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var ShowDeleteC by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Row(
         modifier = Modifier
             .padding(15.dp)
-            .clickable { expanded = true },
+            .clickable { item.PrioridadId?.let { onEdit(it) } },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(modifier = Modifier.weight(0.2f), text = item.PrioridadId.toString())
@@ -133,26 +136,37 @@ private fun PrioridadRow(
         )
         Text(modifier = Modifier.weight(0.2f), text = item.DiasCompromiso)
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Editar") },
-                onClick = {
-                    item.PrioridadId?.let { onEdit(it) }
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Eliminar") },
-                onClick = {
-                    scope.launch {
-                        withContext(Dispatchers.IO) {
-                            EliminarPrioridad(item, prioridadesDb)
+        Icon(
+            imageVector = Icons.Filled.Delete,
+            contentDescription = "Eliminar",
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .clickable { ShowDeleteC = true }
+        )
+
+        if (ShowDeleteC) {
+            AlertDialog(
+                onDismissRequest = { ShowDeleteC = false },
+                title = { Text("Confirmar eliminación") },
+                text = { Text("¿Estás seguro de que deseas eliminar esta prioridad?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                withContext(Dispatchers.IO) {
+                                    EliminarPrioridad(item, prioridadesDb)
+                                }
+                            }
+                            ShowDeleteC = false
                         }
+                    ) {
+                        Text("Eliminar")
                     }
-                    expanded = false
+                },
+                dismissButton = {
+                    Button(onClick = { ShowDeleteC = false }) {
+                        Text("Cancelar")
+                    }
                 }
             )
         }

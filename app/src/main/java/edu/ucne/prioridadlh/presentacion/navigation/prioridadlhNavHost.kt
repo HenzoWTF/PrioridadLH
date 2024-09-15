@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
-import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListSc
+import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListScreen
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadScreen
 
 @Composable
@@ -33,13 +33,11 @@ fun prioridadlhNavHost(
         startDestination = Screen.PrioridadesList.route
     ) {
         composable(Screen.PrioridadesList.route) {
-            PrioridadListSc(
-                prioridadList = prioridadList,
+            PrioridadListScreen(
                 onAddPrioridad = {
                     navHostController.navigate(Screen.Prioridad.createRoute(0))
                 },
-                prioridadesDb = prioridadesDb,
-                onEditPrioridad = { id ->
+                onPrioridadClick = { id ->
                     navHostController.navigate(Screen.Prioridad.createRoute(id))
                 },
             )
@@ -50,11 +48,10 @@ fun prioridadlhNavHost(
         ) { backStackEntry ->
             val prioridadId = backStackEntry.arguments?.getString("prioridadId")?.toIntOrNull() ?: 0
             PrioridadScreen(
-                goPrioridadesList = {
+                prioridadId = prioridadId,
+                goPrioridadList = {
                     navHostController.navigate(Screen.PrioridadesList.route)
-                },
-                prioridadesDb = prioridadesDb,
-                prioridadId = prioridadId
+                }
             )
         }
     }

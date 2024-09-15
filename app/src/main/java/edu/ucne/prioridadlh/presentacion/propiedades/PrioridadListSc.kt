@@ -1,12 +1,13 @@
 package edu.ucne.prioridadlh.presentacion.propiedades
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,12 +16,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,22 +33,43 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrioridadListSc(
-    prioridadList: List<PrioridadesEntity>,
+    viewModel: PrioridadViewModel = hiltViewModel(),
+    onPrioridadClick: (Int) -> Unit,
+    onAddPrioridad: () -> Unit
+){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    PrioridadListBodyScreen(
+        uiState = uiState,
+        onPrioridadClick = onPrioridadClick,
+        onAddPrioridad = onAddPrioridad,
+        onDeletePrioridad = { prioridadId ->
+            viewModel.onEvent(
+                PrioridadUiEvent.PrioridadIdChanged(prioridadId)
+            )
+            viewModel.onEvent(
+                PrioridadUiEvent.Delete
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PrioridadListBodyScreen(
+    uiState: PrioridadUiState,
+    onPrioridadClick: (Int) -> Unit,
     onAddPrioridad: () -> Unit,
-    onEditPrioridad: (Int) -> Unit,
-    prioridadesDb: PrioridadesDb
-) {
+    onDeletePrioridad: (Int) -> Unit
+){
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -59,55 +80,91 @@ fun PrioridadListSc(
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(text = "Lista de Prioridades")
+                    ){
+                        Text(
+                            text = "Prioridades",
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddPrioridad) {
-                Icon(Icons.Filled.Add, "Agregar nueva entidad")
+            FloatingActionButton(
+                onClick = onAddPrioridad
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Agregar nueva prioridad"
+                )
             }
         }
-    ) { innerPadding ->
+    ){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "#",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(0.2f)
+                .padding(it)
+                .padding(
+                    start = 15.dp,
+                    end = 15.dp
                 )
-                Text(
-                    text = "Descripción",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(0.5f)
-                )
-                Text(
-                    text = "Días",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(0.2f)
-                )
-            }
+        ){
+            Spacer(modifier = Modifier.height(32.dp))
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(prioridadList) { item ->
-                    PrioridadRow(
-                        item,
-                        onEdit = onEditPrioridad,
-                        prioridadesDb = prioridadesDb
-                    )
+                modifier = Modifier
+                    .fillMaxSize()
+            ){
+                if(uiState.prioridades.isEmpty()){
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillParentMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ){
+                            Text(
+                                text = "Lista vacía",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }else{
+
+                    item{
+                        HorizontalDivider()
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Row(
+                            modifier = Modifier
+                        ){
+                            Text(
+                                text = "Descripción",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.weight(0.5f)
+                            )
+                            Text(
+                                text = "Días",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.weight(0.2f)
+                            )
+                            Text(
+                                text = "",
+                                modifier = Modifier.weight(0.3f),
+                            )
+                        }
+                    }
+
+                    items(uiState.prioridades){
+                        PrioridadRow(
+                            it = it,
+                            onPrioridadClick = onPrioridadClick,
+                            onDeletePrioridad = onDeletePrioridad
+                        )
+                    }
                 }
             }
         }
@@ -115,36 +172,46 @@ fun PrioridadListSc(
 }
 
 @Composable
-private fun PrioridadRow(
-    item: PrioridadesEntity,
-    onEdit: (Int) -> Unit,
-    prioridadesDb: PrioridadesDb,
-) {
+fun PrioridadRow(
+    it: PrioridadesEntity,
+    onPrioridadClick: (Int) -> Unit,
+    onDeletePrioridad: (Int) -> Unit
+){
     var ShowDeleteC by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(15.dp)
-            .clickable { item.PrioridadId?.let { onEdit(it) } },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(modifier = Modifier.weight(0.2f), text = item.PrioridadId.toString())
+            .clickable(
+                onClick = {
+                    onPrioridadClick(it.PrioridadId ?: 0)
+                }
+            )
+    ){
         Text(
-            modifier = Modifier.weight(0.5f),
-            text = item.Descripcion
+            text = it.Descripcion,
+            modifier = Modifier.weight(2f)
         )
-        Text(modifier = Modifier.weight(0.2f), text = item.DiasCompromiso)
-
-        Icon(
-            imageVector = Icons.Filled.Delete,
-            contentDescription = "Eliminar",
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .clickable { ShowDeleteC = true }
+        Text(
+            text = it.DiasCompromiso.toString(),
+            modifier = Modifier.weight(1f)
         )
-
-        if (ShowDeleteC) {
+        IconButton(
+            onClick = {
+                onDeletePrioridad(it.PrioridadId ?: 0)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Eliminar",
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clickable { ShowDeleteC = true }
+            )
+        }
+    }
+    if (ShowDeleteC) {
             AlertDialog(
                 onDismissRequest = { ShowDeleteC = false },
                 title = { Text("Confirmar eliminación") },
@@ -152,11 +219,7 @@ private fun PrioridadRow(
                 confirmButton = {
                     Button(
                         onClick = {
-                            scope.launch {
-                                withContext(Dispatchers.IO) {
-                                    EliminarPrioridad(item, prioridadesDb)
-                                }
-                            }
+                            onDeletePrioridad(it.PrioridadId ?: 0)
                             ShowDeleteC = false
                         }
                     ) {
@@ -170,12 +233,5 @@ private fun PrioridadRow(
                 }
             )
         }
-    }
-
     HorizontalDivider()
 }
-
-private suspend fun EliminarPrioridad(prioridad: PrioridadesEntity, prioridadesDb: PrioridadesDb) {
-    prioridadesDb.prioridadesDao().delete(prioridad)
-}
-

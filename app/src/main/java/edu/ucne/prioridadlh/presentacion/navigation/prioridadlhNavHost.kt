@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
-import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListScreen
+import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListSc
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadScreen
 
 @Composable
@@ -33,7 +33,7 @@ fun prioridadlhNavHost(
         startDestination = Screen.PrioridadesList.route
     ) {
         composable(Screen.PrioridadesList.route) {
-            PrioridadListScreen(
+            PrioridadListSc(
                 onAddPrioridad = {
                     navHostController.navigate(Screen.Prioridad.createRoute(0))
                 },

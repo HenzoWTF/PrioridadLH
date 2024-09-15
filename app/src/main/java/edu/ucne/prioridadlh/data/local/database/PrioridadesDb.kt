@@ -9,7 +9,7 @@ import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
     entities = [
         PrioridadesEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class PrioridadesDb : RoomDatabase(){

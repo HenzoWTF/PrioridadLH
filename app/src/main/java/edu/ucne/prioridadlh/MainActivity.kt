@@ -7,6 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,9 +47,11 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                     ){
                         val navController = rememberNavController()
+                        val items = BuildNavigationItems(0)
                         prioridadlhNavHost(
                             navController,
-                            prioridadesDb = prioridadesDb
+                            prioridadesDb = prioridadesDb,
+                            items = items
                         )
 
                     }
@@ -54,6 +61,27 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    fun BuildNavigationItems(taskCount: Int): List<NavigationItem>{
+        return listOf(
+            NavigationItem(
+                title = "Prioridades",
+                selectedIcon = Icons.Filled.Warning,
+                unselectedIcon = Icons.Outlined.Warning,
+                route = Route.PRIORIDAD
+            ),
+            NavigationItem(
+                title = "Tickets",
+                selectedIcon = Icons.Filled.Star,
+                unselectedIcon = Icons.Outlined.Star,
+                route = Route.TICKET
+            )
+        )
+    }
+
+    enum class Route{
+        PRIORIDAD,
+        TICKET
+    }
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable

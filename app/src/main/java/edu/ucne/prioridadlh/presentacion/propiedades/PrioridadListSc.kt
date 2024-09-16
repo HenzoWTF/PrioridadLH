@@ -14,8 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -38,15 +40,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun PrioridadListSc(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
     viewModel: PrioridadViewModel = hiltViewModel(),
     onPrioridadClick: (Int) -> Unit,
     onAddPrioridad: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     PrioridadListBodyScreen(
+        drawerState = drawerState,
+        scope = scope,
         uiState = uiState,
         onPrioridadClick = onPrioridadClick,
         onAddPrioridad = onAddPrioridad,
@@ -67,7 +75,9 @@ fun PrioridadListBodyScreen(
     uiState: PrioridadUiState,
     onPrioridadClick: (Int) -> Unit,
     onAddPrioridad: () -> Unit,
-    onDeletePrioridad: (Int) -> Unit
+    onDeletePrioridad: (Int) -> Unit,
+    drawerState: DrawerState,
+    scope: CoroutineScope,
 ){
 
     Scaffold(
@@ -85,6 +95,21 @@ fun PrioridadListBodyScreen(
                             text = "Prioridades",
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                drawerState.open()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu"
                         )
                     }
                 }

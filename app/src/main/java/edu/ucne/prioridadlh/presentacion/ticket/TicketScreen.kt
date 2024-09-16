@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -49,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 
@@ -78,7 +78,7 @@ fun TicketBodyScreen(
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     LaunchedEffect(key1 = true, key2 = uiState.success) {
-        onEvent(TicketUiEvent.TicketSelected(ticketId))
+        onEvent(TicketUiEvent.SelectTicket(ticketId))
 
         if (uiState.success)
             goTicketList()
@@ -113,50 +113,48 @@ fun TicketBodyScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(12.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ElevatedCard(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(15.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     OutlinedTextField(
                         label = { Text("Cliente") },
-                        value = uiState.Cliente ?: "",
+                        value = uiState.cliente ?: "",
                         onValueChange = {
-                            onEvent(TicketUiEvent.ClienteChanged(it))
+                            onEvent(TicketUiEvent.ClienteChange(it))
                         },
                         modifier = Modifier
-                            .padding(15.dp)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
                             .onGloballyPositioned { coordinates ->
                                 textFieldSize = coordinates.size.toSize()
                             },
-                        shape = RoundedCornerShape(10.dp)
+                        singleLine = true
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     OutlinedTextField(
                         label = { Text("Asunto") },
-                        value = uiState.Asunto ?: "",
+                        value = uiState.asunto ?: "",
                         onValueChange = {
-                            onEvent(TicketUiEvent.AsuntoChanged(it))
+                            onEvent(TicketUiEvent.AsuntoChange(it))
                         },
                         modifier = Modifier
-                            .padding(15.dp)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
                             .onGloballyPositioned { coordinates ->
                                 textFieldSize = coordinates.size.toSize()
                             },
-                        shape = RoundedCornerShape(10.dp)
+                        singleLine = true
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -175,29 +173,25 @@ fun TicketBodyScreen(
 
                     OutlinedTextField(
                         label = { Text("Descripción") },
-                        value = uiState.Descripcion ?: "",
+                        value = uiState.descripcion ?: "",
                         onValueChange = {
-                            onEvent(TicketUiEvent.DescripcionChanged(it))
+                            onEvent(TicketUiEvent.DescripcionChange(it))
                         },
                         modifier = Modifier
-                            .padding(15.dp)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
                             .onGloballyPositioned { coordinates ->
                                 textFieldSize = coordinates.size.toSize()
                             },
-                        shape = RoundedCornerShape(10.dp)
+                        singleLine = true
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    uiState.errorMessage?.let {
-                        Text(text = it, color = Color.Red)
-                    }
 
                     OutlinedButton(
                         onClick = {
                             onEvent(TicketUiEvent.Save)
+                            goTicketList()
                         }
                     ) {
                         Icon(
@@ -218,11 +212,10 @@ fun DatePickerField(
     onEvent: (TicketUiEvent) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf(uiState.Fecha) }
+    var selectedDate by remember { mutableStateOf(parseDate(uiState.fecha)) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
     val icon = if (expanded) {
         Icons.Filled.KeyboardArrowUp
     } else {
@@ -231,8 +224,8 @@ fun DatePickerField(
 
     val context = LocalContext.current
 
-    LaunchedEffect(uiState.Fecha) {
-        selectedDate = uiState.Fecha
+    LaunchedEffect(uiState.fecha) {
+        selectedDate = parseDate(uiState.fecha)
     }
 
     Column(
@@ -241,7 +234,7 @@ fun DatePickerField(
         OutlinedTextField(
             label = { Text("Fecha") },
             value = selectedDate?.let { dateFormat.format(it) } ?: "Elija una fecha",
-            onValueChange = {/* No se necesita aquí, ya que es solo lectura */},
+            onValueChange = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
@@ -251,7 +244,7 @@ fun DatePickerField(
                 .clickable {
                     expanded = true
                 },
-            shape = RoundedCornerShape(10.dp),
+            singleLine = true,
             trailingIcon = {
                 Icon(
                     imageVector = icon,
@@ -265,14 +258,16 @@ fun DatePickerField(
         )
 
         if (expanded) {
-            val calendar = Calendar.getInstance()
+            val calendar = Calendar.getInstance().apply {
+                time = selectedDate ?: Date()
+            }
             android.app.DatePickerDialog(
                 context,
                 { _, year, month, dayOfMonth ->
                     calendar.set(year, month, dayOfMonth)
                     val newDate = calendar.time
                     selectedDate = newDate
-                    onEvent(TicketUiEvent.FechaChanged(newDate))
+                    onEvent(TicketUiEvent.FechaChange(dateFormat.format(newDate)))
                     expanded = false
                 },
                 calendar.get(Calendar.YEAR),
@@ -283,6 +278,15 @@ fun DatePickerField(
     }
 }
 
+private fun parseDate(dateString: String): Date? {
+    return try {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        dateFormat.parse(dateString)
+    } catch (e: Exception) {
+        null
+    }
+}
+
 
 @Composable
 fun DropDownMenu(
@@ -290,9 +294,9 @@ fun DropDownMenu(
     onEvent: (TicketUiEvent) -> Unit
 ){
     var expanded by remember { mutableStateOf(false) }
-    var selectItem by remember { mutableStateOf(uiState.PrioridadId.toString()) }
+    var selectItem by remember { mutableStateOf(uiState.prioridadId.toString()) }
     var textFielSize by remember { mutableStateOf(Size.Zero) }
-    val priorities = uiState.Prioridades
+    val priorities = uiState.prioridades
 
     val icon = if(expanded) {
         Icons.Filled.KeyboardArrowUp
@@ -300,8 +304,8 @@ fun DropDownMenu(
         Icons.Filled.KeyboardArrowDown
     }
 
-    LaunchedEffect(uiState.Prioridades) {
-        selectItem = priorities.find { it.PrioridadId == uiState.PrioridadId }?.Descripcion ?: ""
+    LaunchedEffect(uiState.prioridades) {
+        selectItem = priorities.find { it.PrioridadId == uiState.prioridadId }?.Descripcion ?: ""
     }
 
     Column(
@@ -348,7 +352,7 @@ fun DropDownMenu(
                     onClick = {
                         expanded = false
                         selectItem = priority.Descripcion
-                        onEvent(TicketUiEvent.PrioridadIdChanged(priority.PrioridadId.toString()))
+                        onEvent(TicketUiEvent.PrioridadChange(priority.PrioridadId.toString()))
                     },
                     text = {
                         Text(text = priority.Descripcion)
@@ -359,13 +363,4 @@ fun DropDownMenu(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TicketScreenPreview(){
-    PrioridadLHTheme() {
-        TicketScreen(
-            ticketId = 0,
-            goTicketList = {}
-        )
-    }
-}
+

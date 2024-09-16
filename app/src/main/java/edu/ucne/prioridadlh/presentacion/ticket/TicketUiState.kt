@@ -5,14 +5,19 @@ import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 import java.util.Date
 
 data class TicketUiState(
-    val TicketId: Int? = null,
-    val Fecha: Date? = null,
-    val Cliente: String? = "",
-    val Asunto: String? = "",
-    val Descripcion: String? = "",
-    val PrioridadId: Int = 0,
-    val errorMessage: String? = null,
-    val Tickets: List<TicketEntity> = emptyList(),
-    val Prioridades: List<PrioridadesEntity> = emptyList(),
+    val ticketId: Int? = null,
+    val fecha: String = "",
+    val prioridadId: Int? = null,
+    val cliente: String = "",
+    val asunto: String = "",
+    val descripcion: String = "",
+    val errorFecha: String = "",
+    val errorPrioridad: String = "",
+    val errorCliente: String = "",
+    val errorAsunto: String = "",
+    val errorDescripcion: String = "",
+    var validation: Boolean = false,
+    val prioridades: List<PrioridadesEntity> = emptyList(),
+    val tickets : List<TicketEntity> = emptyList(),
     val success: Boolean = false
 )

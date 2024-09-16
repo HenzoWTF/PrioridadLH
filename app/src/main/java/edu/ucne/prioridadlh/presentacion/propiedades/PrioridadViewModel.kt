@@ -21,7 +21,9 @@ class PrioridadViewModel @Inject constructor(
     init {
         getPrioridades()
     }
-
+    fun someFunction() {
+        TODO("Not yet implemented")
+    }
     fun onEvent(event: PrioridadUiEvent) {
         viewModelScope.launch {
             when (event) {

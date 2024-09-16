@@ -3,13 +3,15 @@ package edu.ucne.prioridadlh.presentacion.ticket
 import java.util.Date
 
 sealed interface TicketUiEvent {
-    data class TicketIdChanged(val ticketId: Int): TicketUiEvent
-    data class FechaChanged(val Fecha: Date?) : TicketUiEvent
-    data class ClienteChanged(val Cliente: String): TicketUiEvent
-    data class AsuntoChanged(val Asunto: String) : TicketUiEvent
-    data class DescripcionChanged(val Descripcion: String) : TicketUiEvent
-    data class PrioridadIdChanged(val PrioridadId: String) : TicketUiEvent
-    data class TicketSelected(val TicketId: Int) : TicketUiEvent
-    object  Save : TicketUiEvent
-    object  Delete : TicketUiEvent
+    data class FechaChange(val fecha: String): TicketUiEvent
+    data class PrioridadChange(val prioridadId: String): TicketUiEvent
+    data class ClienteChange(val cliente: String): TicketUiEvent
+    data class AsuntoChange(val asunto: String): TicketUiEvent
+    data class DescripcionChange(val descripcion: String): TicketUiEvent
+    data class SelectTicket(val ticketId: Int): TicketUiEvent
+    data object Save: TicketUiEvent
+    data class Delete(val ticketId: Int): TicketUiEvent
+
+    data object New: TicketUiEvent
+    data object Validation: TicketUiEvent
 }

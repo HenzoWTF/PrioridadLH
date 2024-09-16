@@ -2,6 +2,7 @@ package edu.ucne.prioridadlh.data.Repository
 
 import edu.ucne.prioridadlh.data.local.dao.TicketDao
 import edu.ucne.prioridadlh.data.local.entities.TicketEntity
+import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
 import javax.inject.Inject
 
 class TicketRepository @Inject constructor(

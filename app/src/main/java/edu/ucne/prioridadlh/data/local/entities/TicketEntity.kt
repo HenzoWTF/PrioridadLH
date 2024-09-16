@@ -1,30 +1,18 @@
 package edu.ucne.prioridadlh.data.local.entities
 
+
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
-import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
-import java.util.Date
+import kotlinx.serialization.Serializable
 
-
-@Entity(
-    tableName = "Tickets",
-    foreignKeys = [
-        ForeignKey(
-            entity = PrioridadesEntity::class,
-            parentColumns = ["prioridadId"],
-            childColumns = ["prioridadId"]
-        )
-    ],
-    indices = [Index("prioridadId")]
-)
+@Serializable
+@Entity(tableName = "tickets")
 data class TicketEntity(
     @PrimaryKey
-    val TicketId: Int? = null,
-    val Fecha: Date? = null,
-    val Cliente: String = "",
-    val Asunto: String = "",
-    val Descripcion: String = "",
-    val PrioridadId: Int = 0
+    val TicketId: Int? = 0,
+    val Cliente: String,
+    val Asunto: String,
+    val fecha: String = "",
+    val PrioridadId: Int?,
+    val Descripcion: String
 )

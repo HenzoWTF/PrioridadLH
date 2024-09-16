@@ -21,7 +21,7 @@ interface TicketDao {
         WHERE ticketId = :id
         LIMIT 1
     """)
-    suspend fun find(id: Int): TicketEntity?
+    suspend fun find(id: Int): TicketEntity
 
     @Query("""
         SELECT * FROM TICKETS

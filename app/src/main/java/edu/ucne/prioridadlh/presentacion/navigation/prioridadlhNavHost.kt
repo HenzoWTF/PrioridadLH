@@ -34,12 +34,10 @@ fun prioridadlhNavHost(
     ) {
         composable(Screen.PrioridadesList.route) {
             PrioridadListSc(
-                prioridadList = prioridadList,
                 onAddPrioridad = {
                     navHostController.navigate(Screen.Prioridad.createRoute(0))
                 },
-                prioridadesDb = prioridadesDb,
-                onEditPrioridad = { id ->
+                onPrioridadClick = { id ->
                     navHostController.navigate(Screen.Prioridad.createRoute(id))
                 },
             )
@@ -50,11 +48,10 @@ fun prioridadlhNavHost(
         ) { backStackEntry ->
             val prioridadId = backStackEntry.arguments?.getString("prioridadId")?.toIntOrNull() ?: 0
             PrioridadScreen(
-                goPrioridadesList = {
+                prioridadId = prioridadId,
+                goPrioridadList = {
                     navHostController.navigate(Screen.PrioridadesList.route)
-                },
-                prioridadesDb = prioridadesDb,
-                prioridadId = prioridadId
+                }
             )
         }
     }

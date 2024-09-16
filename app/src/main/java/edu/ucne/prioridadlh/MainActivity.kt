@@ -13,10 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import dagger.hilt.android.AndroidEntryPoint
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import edu.ucne.prioridadlh.presentacion.navigation.prioridadlhNavHost
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private  lateinit var prioridadesDb: PrioridadesDb
 

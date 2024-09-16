@@ -22,11 +22,16 @@ object AppModule {
             context,
             PrioridadesDb::class.java,
             "prioridades_database"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
     fun providePrioridadesDao(db: PrioridadesDb): PrioridadesDao {
         return db.prioridadesDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideTicketDao(prioridadDb: PrioridadesDb) = prioridadDb.ticketDao()
 }

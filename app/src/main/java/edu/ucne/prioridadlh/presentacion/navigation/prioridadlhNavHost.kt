@@ -124,7 +124,7 @@ fun prioridadlhNavHost(
                     prioridadId = id,
                     goPrioridadList = {
                         navHostController.navigate(
-                            Screen.Prioridad
+                            Screen.PrioridadesList
                         )
                     }
                 )

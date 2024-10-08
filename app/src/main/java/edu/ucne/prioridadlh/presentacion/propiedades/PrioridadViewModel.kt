@@ -40,10 +40,12 @@ class PrioridadViewModel @Inject constructor(
                 }
 
                 PrioridadUiEvent.Save -> {
-                    _uiState.value.errorMessge = validateInput()
-                    if (_uiState.value.errorMessge == null) {
+                    val errorMessage = validateInput()
+                    if (errorMessage == null) {
                         prioridadRepository.saveApi(_uiState.value.toEntity())
-                        _uiState.update { it.copy(success = true) }
+                        _uiState.update { it.copy(success = true, errorMessge = null) }
+                    } else {
+                        _uiState.update { it.copy(errorMessge = errorMessage) }
                     }
                 }
 
@@ -65,16 +67,16 @@ class PrioridadViewModel @Inject constructor(
         }
     }
 
-    private fun GetallApi() {
-        viewModelScope.launch {
-            try {
-                val prioridades = prioridadRepository.GetAllApi()
-                _uiState.update { it.copy(prioridades = prioridades) }
-            } catch (e: Exception) {
-                Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+        private fun GetallApi() {
+            viewModelScope.launch {
+                try {
+                    val prioridades = prioridadRepository.GetAllApi()
+                    _uiState.update { it.copy(prioridades = prioridades) }
+                } catch (e: Exception) {
+                    Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+                }
             }
         }
-    }
 
     private fun validateInput(): String? {
         return when {

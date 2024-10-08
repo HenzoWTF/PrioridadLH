@@ -24,8 +24,6 @@ class PrioridadRepository @Inject constructor(
     suspend fun saveApi(prioridadDto: PrioridadesDto?) = prioridadesApi.postPrioridad(prioridadDto)
 
     suspend fun deleteApi(prioridadDto: PrioridadesDto?) = prioridadDto?.idPrioridades?.let {
-        prioridadesApi.deletePrioridad(
-            it
-        )
+        prioridadesApi.deletePrioridad(it)
     }
 }

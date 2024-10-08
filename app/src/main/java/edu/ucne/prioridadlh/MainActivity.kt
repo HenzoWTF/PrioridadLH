@@ -74,13 +74,27 @@ class MainActivity : ComponentActivity() {
                 selectedIcon = Icons.Filled.Star,
                 unselectedIcon = Icons.Outlined.Star,
                 route = Route.TICKET
+            ),
+            NavigationItem(
+                title = "Sistemas",
+                selectedIcon = Icons.Filled.Warning,
+                unselectedIcon = Icons.Outlined.Warning,
+                route = Route.SISTEMA
+            ),
+            NavigationItem(
+                title = "Clientes",
+                selectedIcon = Icons.Filled.Star,
+                unselectedIcon = Icons.Outlined.Star,
+                route = Route.CLIENTE
             )
         )
     }
 
     enum class Route{
         PRIORIDAD,
-        TICKET
+        TICKET,
+        SISTEMA,
+        CLIENTE
     }
 
     @Preview(showBackground = true, showSystemUi = true)

@@ -32,6 +32,10 @@ import androidx.navigation.toRoute
 import edu.ucne.prioridadlh.MainActivity
 import edu.ucne.prioridadlh.NavigationItem
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
+import edu.ucne.prioridadlh.presentacion.Clientes.ClientesListSc
+import edu.ucne.prioridadlh.presentacion.Clientes.ClientesScreen
+import edu.ucne.prioridadlh.presentacion.Sistema.SistemasListSc
+import edu.ucne.prioridadlh.presentacion.Sistema.SistemasScreen
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadListSc
 import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadScreen
 import edu.ucne.prioridadlh.presentacion.ticket.TicketListScreen
@@ -79,6 +83,10 @@ fun prioridadlhNavHost(
                                 navHostController.navigate(Screen.PrioridadesList)
                             else if (item.route == MainActivity.Route.TICKET)
                                 navHostController.navigate(Screen.TicketList)
+                            if(item.route == MainActivity.Route.CLIENTE)
+                                navHostController.navigate(Screen.ClienteListSc)
+                            if(item.route == MainActivity.Route.SISTEMA)
+                                navHostController.navigate(Screen.SistemaListSc)
                             selectedItemIndex = index
                             scope.launch { drawerState.close() }
                         },
@@ -150,6 +158,49 @@ fun prioridadlhNavHost(
                         navHostController.navigate(
                             Screen.TicketList
                         )
+                    }
+                )
+            }
+            composable<Screen.ClienteListSc> {
+                ClientesListSc(
+                    drawerState = drawerState,
+                    scope = scope,
+                    onClienteClick = { clienteId ->
+                        navHostController.navigate(Screen.ClienteScreen(clienteId))
+                    },
+                    onAddCliente = {
+                        navHostController.navigate(Screen.ClienteScreen(0))
+                    }
+                )
+            }
+            composable<Screen.ClienteScreen> { argumento ->
+                val clienteId = argumento.toRoute<Screen.ClienteScreen>().clienteId
+                ClientesScreen(
+                    clienteId = clienteId,
+                    goClientes = {
+                        navHostController.navigate(Screen.ClienteListSc)
+                    }
+                )
+            }
+
+            composable<Screen.SistemaListSc> {
+                SistemasListSc(
+                    drawerState = drawerState,
+                    scope = scope,
+                    onClickSistema = { sistemaId ->
+                        navHostController.navigate(Screen.SistemaScreen(sistemaId))
+                    },
+                    onAddSistema = {
+                        navHostController.navigate(Screen.SistemaScreen(0))
+                    }
+                )
+            }
+            composable<Screen.SistemaScreen> { argumento ->
+                val sistemaId = argumento.toRoute<Screen.SistemaScreen>().sistemaId
+                SistemasScreen(
+                    sistemaId = sistemaId,
+                    goSistemas = {
+                        navHostController.navigate(Screen.SistemaListSc)
                     }
                 )
             }

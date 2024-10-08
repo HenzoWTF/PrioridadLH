@@ -51,6 +51,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.ucne.prioridadlh.R
+import edu.ucne.prioridadlh.data.Remote.dto.ClienteDto
+import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
+import edu.ucne.prioridadlh.data.Remote.dto.SistemasDto
+import edu.ucne.prioridadlh.data.Remote.dto.TicketsDto
 import edu.ucne.prioridadlh.data.local.entities.TicketEntity
 import edu.ucne.prioridadlh.ui.theme.PrioridadLHTheme
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
@@ -100,7 +104,7 @@ fun TicketListBodyScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Lista de Tickets",
+                        text = "Tickets",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -159,6 +163,8 @@ fun TicketListBodyScreen(
                         TicketRow(
                             ticket = ticket,
                             prioridades = uiState.prioridades,
+                            sistemas = uiState.sistemas,
+                            clientes = uiState.clientes,
                             onTicketClick = onTicketClick,
                             onDeleteTicket = onDeleteTicket
                         )
@@ -170,27 +176,26 @@ fun TicketListBodyScreen(
 }
 @Composable
 fun TicketRow(
-    ticket: TicketEntity,
-    prioridades: List<PrioridadesEntity>,
+    ticket: TicketsDto,
+    prioridades: List<PrioridadesDto>,
+    sistemas: List<SistemasDto>,
+    clientes: List<ClienteDto>,
     onTicketClick: (Int) -> Unit,
     onDeleteTicket: (Int) -> Unit
 ) {
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
+    val descripcionPrioridad = prioridades.find { it.idPrioridades == ticket.prioridadesId }
+        ?.descripcion ?: "Sin Prioridad"
 
-    val formattedDate: String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(ticket.fecha)
-        date?.let { dateFormat.format(it) } ?: "Fecha no disponible"
-    } catch (e: Exception) {
-        "Fecha no válida"
-    }
+    val descripcionSistema = sistemas.find { sistema -> sistema.sistemasId == ticket.sistemasId
+    }?.sistemasNombres ?: ""
 
-    val descripcionPrioridad = prioridades.find { it.PrioridadId == ticket.PrioridadId }
-        ?.Descripcion ?: "Sin Prioridad"
+    val descripcionCliente = getClienteName(ticket.clientesId, clientes)
 
     Card(
-        onClick = { onTicketClick(ticket.TicketId ?: 0) },
+        onClick = { onTicketClick(ticket.ticketsId ?: 0) },
         colors = CardDefaults.cardColors(containerColor = Color(0xFFB0BEC5)),
         modifier = Modifier
             .padding(top = 20.dp)
@@ -223,31 +228,43 @@ fun TicketRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = formattedDate,
+                        text = "Cliente: $descripcionCliente",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    Text(
+                        text = "Fecha: " + ticket.fecha?.let { dateFormat.format(it) }.toString(),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
+                Spacer(modifier = Modifier.height(5.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Sistema: $descripcionSistema",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
                     text = "Prioridad: $descripcionPrioridad",
-                    fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
-                    text = "Cliente: ${ticket.Cliente}",
+                    text = "Solicitado Por: ${ticket.solicitadoPor}",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(modifier = Modifier.height(5.dp))
+
                 Text(
-                    text = "Asunto: ${ticket.Asunto}",
+                    text = "Asunto: ${ticket.asunto}",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(modifier = Modifier.height(5.dp))
+
                 Text(
-                    text = "Descripción: ${ticket.Descripcion}",
+                    text = "Descripción: ${ticket.descripcion}",
                     style = MaterialTheme.typography.bodyLarge
                 )
 
@@ -271,7 +288,7 @@ fun TicketRow(
                 confirmButton = {
                     Button(
                         onClick = {
-                            onDeleteTicket(ticket.TicketId ?: 0)
+                            onDeleteTicket(ticket.ticketsId ?: 0)
                             showDeleteConfirmation = false
                         }
                     ) {
@@ -288,51 +305,10 @@ fun TicketRow(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun TicketListScreenPreview() {
-    PrioridadLHTheme {
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val scope = rememberCoroutineScope()
+private fun getPrioridadDescription(prioridadId: Int?, prioridades: List<PrioridadesDto>): String {
+    return prioridades.find { it.idPrioridades == prioridadId }?.descripcion ?: "Sin Prioridad"
+}
 
-        // Simulando datos de muestra
-        val sampleTickets = listOf(
-            TicketEntity(
-                TicketId = 1,
-                fecha = "2024-09-15",
-                PrioridadId = 1,
-                Cliente = "Cliente A",
-                Asunto = "Asunto A",
-                Descripcion = "Descripción A"
-            ),
-            TicketEntity(
-                TicketId = 2,
-                fecha = "2024-09-16",
-                PrioridadId = 2,
-                Cliente = "Cliente B",
-                Asunto = "Asunto B",
-                Descripcion = "Descripción B"
-            )
-        )
-
-        val samplePrioridades = listOf(
-            PrioridadesEntity(PrioridadId = 1, Descripcion = "Alta", DiasCompromiso = 5),
-            PrioridadesEntity(PrioridadId = 2, Descripcion = "Media", DiasCompromiso = 8)
-        )
-
-        val sampleUiState = TicketUiState(
-            tickets = sampleTickets,
-            prioridades = samplePrioridades
-        )
-
-        // Llamada a la función con datos simulados
-        TicketListBodyScreen(
-            drawerState = drawerState,
-            scope = scope,
-            uiState = sampleUiState,
-            onTicketClick = {},
-            onAddTicket = {},
-            onDeleteTicket = {}
-        )
-    }
+private fun getClienteName(clienteId: Int?, clientes: List<ClienteDto>): String {
+    return clientes.find { it.clientesID == clienteId }?.nombresClientes ?: "Cliente desconocido"
 }

@@ -9,8 +9,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import edu.ucne.prioridadlh.data.Remote.API.ClienteApi
 import edu.ucne.prioridadlh.data.Remote.API.PrioridadesApi
-import edu.ucne.prioridadlh.data.Remote.API.TicketApi
+import edu.ucne.prioridadlh.data.Remote.API.SistemasApi
+import edu.ucne.prioridadlh.data.Remote.API.TicketsApi
 import edu.ucne.prioridadlh.data.local.dao.PrioridadesDao
 import edu.ucne.prioridadlh.data.local.database.PrioridadesDb
 import retrofit2.Retrofit
@@ -33,12 +35,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesTicket(moshi: Moshi): TicketApi {
+    fun providesTicket(moshi: Moshi): TicketsApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(TicketApi::class.java)
+            .create(TicketsApi::class.java)
+
     }
 
     @Provides
@@ -49,6 +52,26 @@ object AppModule {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(PrioridadesApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providesClientesApi(moshi: Moshi): ClienteApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(ClienteApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providesSistemaApi(moshi: Moshi): SistemasApi {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SistemasApi::class.java)
     }
 
     @Provides

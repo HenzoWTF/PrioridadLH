@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -127,19 +128,62 @@ fun TicketBodyScreen(
                         .padding(16.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
-                    OutlinedTextField(
-                        label = { Text("Cliente") },
-                        value = uiState.cliente ?: "",
-                        onValueChange = {
-                            onEvent(TicketUiEvent.ClienteChange(it))
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned { coordinates ->
-                                textFieldSize = coordinates.size.toSize()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        DropDownMenuClientes(
+                            uiState = uiState,
+                            onEvent = onEvent
+                        )
+                        uiState.errorCliente?.let {
+                            Text(
+                                text = it,
+                                color = Color.Red
+                            )
+                        }
+                    }
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        DropDownMenuSistemas(
+                            uiState = uiState,
+                            onEvent = onEvent
+                        )
+                        uiState.errorSistema?.let {
+                            Text(
+                                text = it,
+                                color = Color.Red
+                            )
+                        }
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        OutlinedTextField(
+                            label = {
+                                Text("Solicitado Por")
                             },
-                        singleLine = true
-                    )
+                            value = uiState.solicitadoPor ?: "",
+                            onValueChange = {
+                                onEvent(TicketUiEvent.SolicitadoPorChangend(it))
+                            },
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .onGloballyPositioned { coordinates ->
+                                    textFieldSize = coordinates.size.toSize()
+                                },
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        uiState.errorSolicitadoPor?.let {
+                            Text(
+                                text = it,
+                                color = Color.Red
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -164,7 +208,7 @@ fun TicketBodyScreen(
                         onEvent = onEvent
                     )
 
-                    DropDownMenu(
+                    DropDownMenuPropiedades(
                         uiState = uiState,
                         onEvent = onEvent
                     )
@@ -212,7 +256,7 @@ fun DatePickerField(
     onEvent: (TicketUiEvent) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf(parseDate(uiState.fecha)) }
+    var selectedDate by remember { mutableStateOf(parseDate(uiState.fecha.toString())) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -225,7 +269,7 @@ fun DatePickerField(
     val context = LocalContext.current
 
     LaunchedEffect(uiState.fecha) {
-        selectedDate = parseDate(uiState.fecha)
+        selectedDate = parseDate(uiState.fecha.toString())
     }
 
     Column(
@@ -289,12 +333,12 @@ private fun parseDate(dateString: String): Date? {
 
 
 @Composable
-fun DropDownMenu(
+fun DropDownMenuPropiedades(
     uiState: TicketUiState,
     onEvent: (TicketUiEvent) -> Unit
 ){
     var expanded by remember { mutableStateOf(false) }
-    var selectItem by remember { mutableStateOf(uiState.prioridadId.toString()) }
+    var selectItem by remember { mutableStateOf(uiState.prioriodadId.toString()) }
     var textFielSize by remember { mutableStateOf(Size.Zero) }
     val priorities = uiState.prioridades
 
@@ -305,7 +349,7 @@ fun DropDownMenu(
     }
 
     LaunchedEffect(uiState.prioridades) {
-        selectItem = priorities.find { it.PrioridadId == uiState.prioridadId }?.Descripcion ?: ""
+        selectItem = priorities.find { it.idPrioridades == uiState.prioriodadId}?.descripcion ?: ""
     }
 
     Column(
@@ -351,11 +395,162 @@ fun DropDownMenu(
                 DropdownMenuItem(
                     onClick = {
                         expanded = false
-                        selectItem = priority.Descripcion
-                        onEvent(TicketUiEvent.PrioridadChange(priority.PrioridadId.toString()))
+                        selectItem = priority.descripcion
+                        onEvent(TicketUiEvent.PrioridadChange(priority.idPrioridades.toString()))
                     },
                     text = {
-                        Text(text = priority.Descripcion)
+                        Text(text = priority.descripcion)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DropDownMenuSistemas(
+    uiState: TicketUiState,
+    onEvent: (TicketUiEvent) -> Unit
+){
+    var expanded by remember { mutableStateOf(false) }
+    var selectItem by remember { mutableStateOf(uiState.prioriodadId.toString()) }
+    var textFielSize by remember { mutableStateOf(Size.Zero) }
+    val sistemas = uiState.sistemas
+
+    val icon = if(expanded) {
+        Icons.Filled.KeyboardArrowUp
+    }else{
+        Icons.Filled.KeyboardArrowDown
+    }
+
+    LaunchedEffect(uiState.prioridades) {
+        selectItem = sistemas.find { it.sistemasId == uiState.prioriodadId }?.sistemasNombres ?: ""
+    }
+
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        OutlinedTextField(
+            label = {
+                Text("Prioridad")
+            },
+            value = selectItem,
+            onValueChange = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .onGloballyPositioned { coordinates ->
+                    textFielSize = coordinates.size.toSize()
+                }
+                .clickable {
+                    expanded = true
+                },
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable { expanded = !expanded }
+                )
+            },
+            readOnly = true
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(
+                with(LocalDensity.current) {
+                    textFielSize.width.toDp()
+                }
+            )
+        ) {
+            sistemas.forEach { priority ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        selectItem = priority.sistemasNombres.toString()
+                        onEvent(TicketUiEvent.PrioridadChange(priority.sistemasId.toString()))
+                    },
+                    text = {
+                        Text(text = priority.sistemasNombres.toString())
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun DropDownMenuClientes(
+    uiState: TicketUiState,
+    onEvent: (TicketUiEvent) -> Unit
+){
+    var expanded by remember { mutableStateOf(false) }
+    var selectItem by remember { mutableStateOf(uiState.prioriodadId.toString()) }
+    var textFielSize by remember { mutableStateOf(Size.Zero) }
+    val cliente = uiState.clientes
+
+    val icon = if(expanded) {
+        Icons.Filled.KeyboardArrowUp
+    }else{
+        Icons.Filled.KeyboardArrowDown
+    }
+
+    LaunchedEffect(uiState.prioridades) {
+        selectItem = cliente.find { it.clientesID == uiState.prioriodadId }?.nombresClientes ?: ""
+    }
+
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        OutlinedTextField(
+            label = {
+                Text("Prioridad")
+            },
+            value = selectItem,
+            onValueChange = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .onGloballyPositioned { coordinates ->
+                    textFielSize = coordinates.size.toSize()
+                }
+                .clickable {
+                    expanded = true
+                },
+            shape = RoundedCornerShape(10.dp),
+            trailingIcon = {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clickable { expanded = !expanded }
+                )
+            },
+            readOnly = true
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(
+                with(LocalDensity.current) {
+                    textFielSize.width.toDp()
+                }
+            )
+        ) {
+            cliente.forEach { clientes ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        selectItem = clientes.nombresClientes.toString()
+                        onEvent(TicketUiEvent.PrioridadChange(clientes.clientesID.toString()))
+                    },
+                    text = {
+                        Text(text = clientes.nombresClientes.toString())
                     }
                 )
             }

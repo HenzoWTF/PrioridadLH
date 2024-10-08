@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
+import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -157,7 +157,6 @@ fun PrioridadListBodyScreen(
                         }
                     }
                 }else{
-
                     item{
                         HorizontalDivider()
 
@@ -198,7 +197,7 @@ fun PrioridadListBodyScreen(
 
 @Composable
 fun PrioridadRow(
-    it: PrioridadesEntity,
+    it: PrioridadesDto,
     onPrioridadClick: (Int) -> Unit,
     onDeletePrioridad: (Int) -> Unit
 ){
@@ -210,21 +209,21 @@ fun PrioridadRow(
         modifier = Modifier
             .clickable(
                 onClick = {
-                    onPrioridadClick(it.PrioridadId ?: 0)
+                    onPrioridadClick(it.idPrioridades ?: 0)
                 }
             )
     ){
         Text(
-            text = it.Descripcion,
+            text = it.descripcion,
             modifier = Modifier.weight(2f)
         )
         Text(
-            text = it.DiasCompromiso.toString(),
+            text = it.diasCompromiso.toString(),
             modifier = Modifier.weight(1f)
         )
         IconButton(
             onClick = {
-                onDeletePrioridad(it.PrioridadId ?: 0)
+                onDeletePrioridad(it.idPrioridades ?: 0)
             }
         ) {
             Icon(
@@ -244,7 +243,7 @@ fun PrioridadRow(
                 confirmButton = {
                     Button(
                         onClick = {
-                            onDeletePrioridad(it.PrioridadId ?: 0)
+                            onDeletePrioridad(it.idPrioridades ?: 0)
                             ShowDeleteC = false
                         }
                     ) {

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.prioridadlh.data.Remote.dto.SistemasDto
 import edu.ucne.prioridadlh.data.Repository.SistemaRepository
+import edu.ucne.prioridadlh.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -30,7 +31,7 @@ class SistemaViewModel @Inject constructor(
     fun onEvent(event: SistemaUiEvent) {
         viewModelScope.launch {
             when (event) {
-                SistemaUiEvent.Delete -> sistemaRepository.DeleteSistemasApi(_uiState.value.sistemaId)
+                SistemaUiEvent.Delete -> sistemaRepository.DeleteSistemas(_uiState.value.sistemaId)
                 is SistemaUiEvent.NombreChanged -> _uiState.update { it.copy(sistemaNombre = event.nombre) }
                 SistemaUiEvent.Save -> {
                     val errorMessage = validateInput()
@@ -56,11 +57,35 @@ class SistemaViewModel @Inject constructor(
 
     private fun getSistemas() {
         viewModelScope.launch {
-            try {
-                val sistema = sistemaRepository.GetSistemas()
-                _uiState.update { it.copy(sistemas = sistema) }
-            } catch (e: Exception) {
-                Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+            sistemaRepository.GetSistemas().collect { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                sistemas = result.data ?: emptyList(),
+                                isLoading =false
+                            )
+                        }
+                    }
+
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorMessge =it.errorMessge,
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+
             }
         }
     }

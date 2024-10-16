@@ -7,5 +7,6 @@ data class SistemaUiState (
     val sistemaNombre: String = "",
     val sistemas: List<SistemasDto> = emptyList(),
     val errorMessge: String? = null,
-    val success: Boolean = false
+    val success: Boolean = false,
+    val isLoading: Boolean = false,
 )

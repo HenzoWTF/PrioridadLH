@@ -2,7 +2,6 @@ package edu.ucne.prioridadlh.presentacion.Clientes
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +18,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -111,7 +111,7 @@ fun ClienteListBodyScreen(
                 )
             }
         }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -120,41 +120,45 @@ fun ClienteListBodyScreen(
                     start = 15.dp,
                     end = 15.dp
                 )
-        ){
+        ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ){
-                if(uiState.clientes.isEmpty()){
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillParentMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ){
-                            Text(
-                                text = "Lista vacía",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }else{
-                    items(uiState.clientes) {
-                        ClienteRow(
-                            it = it,
-                            onClickCliente = onClickCliente
+            when {
+                uiState.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+
+                uiState.clientes.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Lista vacía",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
-            }
 
+                else -> {
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        items(uiState.clientes) {
+                            ClienteRow(
+                                it = it,
+                                onClickCliente = onClickCliente
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
-
 }
 
 @Composable

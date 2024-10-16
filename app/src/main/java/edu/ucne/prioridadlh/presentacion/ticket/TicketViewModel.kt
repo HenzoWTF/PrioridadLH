@@ -10,6 +10,7 @@ import edu.ucne.prioridadlh.data.Repository.ClienteRepository
 import edu.ucne.prioridadlh.data.Repository.PrioridadRepository
 import edu.ucne.prioridadlh.data.Repository.SistemaRepository
 import edu.ucne.prioridadlh.data.Repository.TicketRepository
+import edu.ucne.prioridadlh.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -88,39 +89,84 @@ class TicketViewModel @Inject constructor(
     }
 
     private fun getPrioridades(){
-        viewModelScope.launch {
-            viewModelScope.launch {
-                try {
-                    val prioridades = prioridadRepository.GetAllApi()
-                    _uiState.update { it.copy(prioridades = prioridades) }
-                } catch (e: Exception) {
-                    Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
-                }
-            }
-        }
+//        viewModelScope.launch {
+//            viewModelScope.launch {
+//                try {
+//                    val prioridades = prioridadRepository.GetAllApi()
+//                    _uiState.update {
+//                        it.copy(prioridades = prioridades)
+//                    }
+//                } catch (e: Exception) {
+//                    Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+//                }
+//            }
+//        }
     }
 
     private fun getSistemas(){
         viewModelScope.launch {
-            try {
-                val sistema = sistemaRepository.GetSistemas()
-                _uiState.update { it.copy(sistemas = sistema) }
-            } catch (e: Exception) {
-                Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+            sistemaRepository.GetSistemas().collect { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                sistemas = result.data ?: emptyList(),
+                                isLoading =false
+                            )
+                        }
+                    }
+
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorCliente =it.errorCliente,
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     private fun getClientes(){
         viewModelScope.launch {
-            try {
-                val clientes = clienteRepository.GetAllApi()
-                _uiState.update {
-                    it.copy(clientes = clientes)
+            clienteRepository.GetAllApi().collect { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                clientes = result.data ?: emptyList(),
+                                isLoading =false
+                            )
+                        }
+                    }
+
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorCliente =it.errorCliente,
+                                isLoading = false
+                            )
+                        }
+                    }
                 }
-            }catch (e: Exception){
-                Log.e("ViewModel", "Error obteniendo cliente: ${e.message}", e)
-                e.printStackTrace()
             }
         }
     }

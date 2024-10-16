@@ -1,9 +1,7 @@
 package edu.ucne.prioridadlh.data.Remote
 
 import edu.ucne.prioridadlh.data.Remote.API.PrioridadesApi
-import edu.ucne.prioridadlh.data.Remote.API.TicketsApi
 import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
-import retrofit2.http.Path
 import javax.inject.Inject
 
 class PrioridadRemoteDataSource @Inject constructor(

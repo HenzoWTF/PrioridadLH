@@ -4,7 +4,8 @@ import edu.ucne.prioridadlh.data.Remote.dto.ClienteDto
 import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
 import edu.ucne.prioridadlh.data.Remote.dto.SistemasDto
 import edu.ucne.prioridadlh.data.Remote.dto.TicketsDto
-import retrofit2.Call
+import edu.ucne.prioridadlh.utils.Resource
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 data class TicketUiState(
@@ -27,5 +28,6 @@ data class TicketUiState(
     val errorAsunto: String? = "",
     val errorPrioridad: String? = "",
     val errorDescripcion: String? = "",
-    val success: Boolean = false
+    val success: Boolean = false,
+    val isLoading: Boolean = false,
 )

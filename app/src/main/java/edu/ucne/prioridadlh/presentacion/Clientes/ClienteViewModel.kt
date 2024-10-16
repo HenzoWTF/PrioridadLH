@@ -1,13 +1,11 @@
 package edu.ucne.prioridadlh.presentacion.Clientes
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.prioridadlh.data.Remote.dto.ClienteDto
-import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
 import edu.ucne.prioridadlh.data.Repository.ClienteRepository
-import edu.ucne.prioridadlh.presentacion.propiedades.PrioridadUiState
+import edu.ucne.prioridadlh.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -81,7 +79,6 @@ class ClienteViewModel @Inject constructor(
                 TelefonoClientes.isNullOrBlank() -> "El teléfono no puede estar vacío."
                 TelefonoClientes.length != 8 -> "El teléfono debe tener 8 dígitos."
                 direccion.isBlank() -> "La dirección no puede estar vacía."
-
                 else -> null
             }
         }
@@ -89,11 +86,32 @@ class ClienteViewModel @Inject constructor(
 
     private fun GetClientes() {
         viewModelScope.launch {
-            try {
-                val clientes = clienteRepository.GetAllApi()
-                _uiState.update { it.copy(clientes = clientes) }
-            } catch (e: Exception) {
-                Log.e("ClienteViewModel", "Error fetching Cliente: ${e.message}")
+            clienteRepository.GetAllApi().collect { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                clientes = result.data ?: emptyList(),
+                                isLoading =false
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorMessge =it.errorMessge,
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
             }
         }
     }

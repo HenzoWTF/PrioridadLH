@@ -12,5 +12,6 @@ data class ClientesUiState (
     val direccion: String = "",
     val errorMessge: String? = null,
     val clientes: List<ClienteDto> = emptyList(),
-    val success: Boolean = false
-)
+    val success: Boolean = false,
+    val isLoading: Boolean = false,
+    )

@@ -8,5 +8,6 @@ data class PrioridadUiState(
     val diasCompromiso: Int = 0,
     var errorMessge: String? = null,
     val prioridades: List<PrioridadesDto> = emptyList(),
-    val success: Boolean = false
+    val success: Boolean = false,
+    val isLoading: Boolean = false,
 )

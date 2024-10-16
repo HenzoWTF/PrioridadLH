@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -35,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,26 +80,23 @@ fun PrioridadListBodyScreen(
     onDeletePrioridad: (Int) -> Unit,
     drawerState: DrawerState,
     scope: CoroutineScope,
-){
-
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
-                    ){
+                    ) {
                         Text(
                             text = "Prioridades",
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.Bold
                         )
                     }
-
                 },
                 navigationIcon = {
                     IconButton(
@@ -125,69 +124,50 @@ fun PrioridadListBodyScreen(
                 )
             }
         }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .padding(
-                    start = 15.dp,
-                    end = 15.dp
-                )
-        ){
+                .padding(start = 15.dp, end = 15.dp)
+        ) {
             Spacer(modifier = Modifier.height(32.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-            ){
-                if(uiState.prioridades.isEmpty()){
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillParentMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ){
-                            Text(
-                                text = "Lista vacía",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }else{
-                    item{
-                        HorizontalDivider()
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Row(
-                            modifier = Modifier
-                        ){
-                            Text(
-                                text = "Descripción",
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.weight(0.5f)
-                            )
-                            Text(
-                                text = "Días",
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.weight(0.2f)
-                            )
-                            Text(
-                                text = "",
-                                modifier = Modifier.weight(0.3f),
-                            )
-                        }
-                    }
-
-                    items(uiState.prioridades){
-                        PrioridadRow(
-                            it = it,
-                            onPrioridadClick = onPrioridadClick,
-                            onDeletePrioridad = onDeletePrioridad
+            when {
+                uiState.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                uiState.prioridades.isEmpty() -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Lista vacía",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
                         )
+                    }
+                }
+                else -> {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        item {
+                            HorizontalDivider()
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Row {
+                                Text(text = "Descripción", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(0.5f))
+                                Text(text = "Días", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(0.2f))
+                                Text(text = "", Modifier.weight(0.3f))
+                            }
+                        }
+                        items(uiState.prioridades) { prioridad ->
+                            PrioridadRow(
+                                it = prioridad,
+                                onPrioridadClick = onPrioridadClick,
+                                onDeletePrioridad = onDeletePrioridad
+                            )
+                        }
                     }
                 }
             }

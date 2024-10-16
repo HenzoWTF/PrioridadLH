@@ -1,12 +1,11 @@
 package edu.ucne.prioridadlh.presentacion.propiedades
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
 import edu.ucne.prioridadlh.data.Repository.PrioridadRepository
-import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
+import edu.ucne.prioridadlh.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,9 +22,7 @@ class PrioridadViewModel @Inject constructor(
     init {
         GetallApi()
     }
-    fun someFunction() {
-        TODO("Not yet implemented")
-    }
+
     fun onEvent(event: PrioridadUiEvent) {
         viewModelScope.launch {
             when (event) {
@@ -69,11 +66,35 @@ class PrioridadViewModel @Inject constructor(
 
         private fun GetallApi() {
             viewModelScope.launch {
-                try {
-                    val prioridades = prioridadRepository.GetAllApi()
-                    _uiState.update { it.copy(prioridades = prioridades) }
-                } catch (e: Exception) {
-                    Log.e("PrioridadViewModel", "Error fetching prioridades: ${e.message}")
+                prioridadRepository.GetAllApi().collect { result ->
+                    when(result){
+                        is Resource.Loading -> {
+                            _uiState.update {
+                                it.copy(isLoading = true)
+                            }
+                        }
+
+
+                        is Resource.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    prioridades = result.data ?: emptyList(),
+                                    isLoading =false
+                                )
+                            }
+                        }
+
+
+                        is Resource.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    errorMessge =it.errorMessge,
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    }
+
                 }
             }
         }

@@ -1,29 +1,36 @@
 package edu.ucne.prioridadlh.data.Repository
 
-import edu.ucne.prioridadlh.data.Remote.API.PrioridadesApi
+import edu.ucne.prioridadlh.data.Remote.PrioridadRemoteDataSource
 import edu.ucne.prioridadlh.data.Remote.dto.PrioridadesDto
 import edu.ucne.prioridadlh.data.local.dao.PrioridadesDao
+import edu.ucne.prioridadlh.utils.Resource
 import edu.ucne.prioridadlt.data.local.entities.PrioridadesEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class PrioridadRepository @Inject constructor(
-    private val prioridadesApi: PrioridadesApi,
-    private val prioridadDao: PrioridadesDao)
+    private val prioridadRemote: PrioridadRemoteDataSource
+)
 {
-    suspend fun save(prioridad: PrioridadesEntity) = prioridadDao.save(prioridad)
-    suspend fun delete(prioridad: PrioridadesEntity) = prioridadDao.delete(prioridad)
-    fun getAll() = prioridadDao.getAll()
-    suspend fun find(id: Int) = prioridadDao.find(id)
+    suspend fun findApi(id: Int) = prioridadRemote.getPrioridad(id)
 
-    suspend fun findApi(id: Int) = prioridadesApi.getPrioridad(id)
-
-    suspend fun GetAllApi(): List<PrioridadesDto> {
-        return prioridadesApi.getPrioridades()
+    fun GetAllApi(): Flow<Resource<List<PrioridadesDto>>> = flow {
+        try {
+            emit(Resource.Loading())
+            val prioridades = prioridadRemote.getPrioridades()
+            emit(Resource.Success(prioridades))
+        }catch (e : HttpException){
+            emit(Resource.Error("Error HTTP GENERAL ${e.message}"))
+        }catch (e: Exception){
+            emit(Resource.Error("Error Desconocido ${e.message}"))
+        }
     }
 
-    suspend fun saveApi(prioridadDto: PrioridadesDto?) = prioridadesApi.postPrioridad(prioridadDto)
+    suspend fun saveApi(prioridadDto: PrioridadesDto) = prioridadRemote.addPrioridades(prioridadDto)
 
     suspend fun deleteApi(prioridadDto: PrioridadesDto?) = prioridadDto?.idPrioridades?.let {
-        prioridadesApi.deletePrioridad(it)
+        prioridadRemote.deletePrioridad(it)
     }
 }
